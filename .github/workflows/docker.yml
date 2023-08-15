@@ -63,6 +63,7 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ env.PLATFORMS }}
 
     - name: Adding Docker Image Markdown Summary
       if: ${{ steps.meta.outputs.tags != '' }}
