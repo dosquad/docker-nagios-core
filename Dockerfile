@@ -67,6 +67,8 @@ RUN apt-get update \
 RUN groupadd -g 5001 nagios \
  && useradd -ms /bin/bash -u 5001 -g 5001 nagios
 
+VOLUME [ "/config", "/data" ]
+
 COPY --from=core-builder --chown=nagios:nagios /app /app
 COPY --from=plugin-builder --chown=nagios:nagios /app /app
 COPY --from=core-builder --chown=nagios:nagios /config /config
@@ -130,4 +132,3 @@ EXPOSE 80
 
 COPY root/ /
 
-VOLUME [ "/config", "/data" ]
