@@ -1,2 +1,1 @@
-# docker-nagios-core
-Dockerised Nagios Core Release
+# Dockerised Nagios Core Release
