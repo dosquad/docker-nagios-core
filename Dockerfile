@@ -4,6 +4,8 @@
 FROM ghcr.io/linuxserver/baseimage-debian:bookworm as core-builder
 ARG NAGIOS_VERSION=4.4.14
 
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+
 RUN apt-get update \
  && apt-get install -y apache2 apache2-utils autoconf bc build-essential dc gawk gcc gettext libc6 libgd-dev libmcrypt-dev libnet-snmp-perl libssl-dev make openssl php procps snmp unzip wget
 
@@ -33,6 +35,8 @@ RUN make all install install-config install-commandmode install-html install-web
 FROM ghcr.io/linuxserver/baseimage-debian:bookworm as plugin-builder
 ARG PLUGIN_VERSION=2.4.6
 
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+
 RUN apt-get update \
  && apt-get install -y apache2 apache2-utils autoconf bc build-essential dc gawk gcc gettext libc6 libgd-dev libmcrypt-dev libnet-snmp-perl libssl-dev make openssl php procps snmp unzip wget
 
@@ -61,11 +65,14 @@ RUN make install
 ####################################################################################################################################
 FROM ghcr.io/linuxserver/baseimage-debian:bookworm
 
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+
 RUN apt-get update \
- && apt-get install -y wget unzip openssl procps socat apache2 apache2-utils php
+ && apt-get install -y wget unzip openssl procps socat apache2 apache2-utils php iputils-ping
 
 RUN groupadd -g 5001 nagios \
- && useradd -ms /bin/bash -u 5001 -g 5001 nagios
+ && useradd -ms /bin/bash -u 5001 -g 5001 nagios \
+ && gpasswd -a www-data nagios
 
 VOLUME [ "/config", "/data" ]
 
@@ -74,7 +81,9 @@ COPY --from=plugin-builder --chown=nagios:nagios /app /app
 COPY --from=core-builder --chown=nagios:nagios /config /config
 COPY --from=core-builder --chown=nagios:nagios /data /data
 COPY --from=core-builder /etc/apache2/sites-available/ /etc/apache2/sites-available/
-RUN ln -s ../sites-available/nagios.conf /etc/apache2/sites-enabled/nagios.conf
+RUN ln -s ../sites-available/nagios.conf /etc/apache2/sites-enabled/nagios.conf \
+ && chown root /app/libexec/* \
+ && chmod ug+s /app/libexec/*
 
 RUN sed -ri -e 's!^log_file=.*!log_file=/data/log/nagios.log!g' /config/nagios.cfg \
  && sed -ri -e 's!^log_archive_path=.*!log_archive_path=/data/log/archives!g' /config/nagios.cfg \
