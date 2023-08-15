@@ -68,7 +68,7 @@ FROM ghcr.io/linuxserver/baseimage-debian:bookworm
 ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
 
 RUN apt-get update \
- && apt-get install -y wget unzip openssl procps socat apache2 apache2-utils php iputils-ping
+ && apt-get install -y wget unzip openssl procps socat apache2 apache2-utils php iputils-ping snmp nut-client
 
 RUN groupadd -g 5001 nagios \
  && useradd -ms /bin/bash -u 5001 -g 5001 nagios \
